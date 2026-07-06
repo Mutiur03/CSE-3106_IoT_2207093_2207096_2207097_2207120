@@ -36,7 +36,10 @@ bool ikSolve(const Pose& p, Joints& out) {
   float D  = sqrtf(D2);
 
   // reachability
-  if (D > (L1_UPPER + L2_FORE) || D < fabsf(L1_UPPER - L2_FORE)) return false;
+  if (D > (L1_UPPER + L2_FORE) || D < fabsf(L1_UPPER - L2_FORE)) {
+    Serial.printf("IK: unreachable D=%.1f max=%.1f min=%.1f\n", D, L1_UPPER+L2_FORE, fabsf(L1_UPPER-L2_FORE));
+    return false;
+  }
 
   // --- 2) planar 2-link (law of cosines) ---
   float c3 = (D2 - L1_UPPER * L1_UPPER - L2_FORE * L2_FORE)
@@ -50,13 +53,16 @@ bool ikSolve(const Pose& p, Joints& out) {
                  - atan2f(L2_FORE * s3, L1_UPPER + L2_FORE * c3)); // shoulder
 
   // --- 4) wrist keeps the requested tool pitch ---
-  float j4 = p.pitch - (j2 + deg(atan2f(s3, c3)));
+  float j4 = p.pitch - (j2 + j3);
+
+  Serial.printf("IK: target(%.0f,%.0f,%.0f,%.0f) -> j1=%.1f j2=%.1f j3=%.1f j4=%.1f\n",
+                p.x, p.y, p.z, p.pitch, j1, j2, j3, j4);
 
   // --- limit check ---
-  if (j1 < J1_MIN || j1 > J1_MAX) return false;
-  if (j2 < J2_MIN || j2 > J2_MAX) return false;
-  if (j3 < J3_MIN || j3 > J3_MAX) return false;
-  if (j4 < J4_MIN || j4 > J4_MAX) return false;
+  if (j1 < J1_MIN || j1 > J1_MAX) { Serial.printf("IK: j1=%.1f out of [%.0f,%.0f]\n",j1,J1_MIN,J1_MAX); return false; }
+  if (j2 < J2_MIN || j2 > J2_MAX) { Serial.printf("IK: j2=%.1f out of [%.0f,%.0f]\n",j2,J2_MIN,J2_MAX); return false; }
+  if (j3 < J3_MIN || j3 > J3_MAX) { Serial.printf("IK: j3=%.1f out of [%.0f,%.0f]\n",j3,J3_MIN,J3_MAX); return false; }
+  if (j4 < J4_MIN || j4 > J4_MAX) { Serial.printf("IK: j4=%.1f out of [%.0f,%.0f]\n",j4,J4_MIN,J4_MAX); return false; }
 
   out.j1 = j1; out.j2 = j2; out.j3 = j3; out.j4 = j4;
   return true;

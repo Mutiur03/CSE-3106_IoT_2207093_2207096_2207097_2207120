@@ -93,14 +93,18 @@ void servoUpdate() {
   float e1 = tgt.j1 - cur.j1;
   if (fabsf(e1) > tol) {
     int dir = (e1 > 0 ? 1 : -1) * J1_DIR;
+    float us = CONT_STOP_US + dir * (float)CONT_SPEED_US;
+    Serial.printf("J1: err=%.1f dir=%d pulse=%.0f\n", e1, dir, us);
     writeContinuous(CH_J1_BASE, dir);
-    cur.j1 += (e1 > 0 ? 1 : -1) * J1_DEG_PER_SEC * dt;   // estimate
-    if ((e1 > 0) != (tgt.j1 - cur.j1 > 0)) cur.j1 = tgt.j1; // overshoot snap
+    cur.j1 += (e1 > 0 ? 1 : -1) * J1_DEG_PER_SEC * dt;
+    if ((e1 > 0) != (tgt.j1 - cur.j1 > 0)) cur.j1 = tgt.j1;
   } else { writeContinuous(CH_J1_BASE, 0); cur.j1 = tgt.j1; }
   // J3
   float e3 = tgt.j3 - cur.j3;
   if (fabsf(e3) > tol) {
     int dir = (e3 > 0 ? 1 : -1) * J3_DIR;
+    float us3 = CONT_STOP_US + dir * (float)CONT_SPEED_US;
+    Serial.printf("J3: err=%.1f dir=%d pulse=%.0f\n", e3, dir, us3);
     writeContinuous(CH_J3_ELBOW, dir);
     cur.j3 += (e3 > 0 ? 1 : -1) * J3_DEG_PER_SEC * dt;
     if ((e3 > 0) != (tgt.j3 - cur.j3 > 0)) cur.j3 = tgt.j3;

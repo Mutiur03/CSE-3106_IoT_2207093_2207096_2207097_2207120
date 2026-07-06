@@ -9,6 +9,7 @@
 //    - Adafruit PWM Servo Driver Library   (Adafruit)
 //  Board: any ESP32 dev module.
 // ============================================================================
+#include <Wire.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
@@ -80,8 +81,24 @@ static void onWsEvent(AsyncWebSocket* s, AsyncWebSocketClient* c, AwsEventType t
   }
 }
 
+static void i2cScan() {
+  Wire.begin();
+  Serial.println("I2C scan...");
+  int found = 0;
+  for (uint8_t addr = 1; addr < 127; addr++) {
+    Wire.beginTransmission(addr);
+    if (Wire.endTransmission() == 0) {
+      Serial.printf("  found device at 0x%02X\n", addr);
+      found++;
+    }
+  }
+  if (!found) Serial.println("  NO I2C devices found! Check SDA(21)/SCL(22) wiring.");
+}
+
 void setup() {
   Serial.begin(115200);
+  delay(500);
+  i2cScan();
   servoBegin();
 
 #if USE_WIFI_AP

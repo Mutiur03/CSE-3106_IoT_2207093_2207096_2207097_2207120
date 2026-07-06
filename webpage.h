@@ -30,6 +30,7 @@ const char INDEX_HTML[] PROGMEM = R"HTML(
   button:active{transform:translateY(1px)}
   .jog{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
   .jog span{font-variant-numeric:tabular-nums}
+  .jog button{user-select:none;-webkit-user-select:none;touch-action:none}
   .readout{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-variant-numeric:tabular-nums}
   .readout div{background:#0f1319;border-radius:8px;padding:8px 10px}
   .readout b{color:var(--acc)}
@@ -83,13 +84,32 @@ const char INDEX_HTML[] PROGMEM = R"HTML(
 const $=id=>document.getElementById(id);
 let ws, busy=false;
 const JOINTS=[['J1 base',1],['J2 shoulder',2],['J3 elbow',3],['J4 wrist',4]];
-// build jog rows
+// build jog rows with press-and-hold
+// J1,J3 = continuous (bigger step), J2,J4 = positional (smaller step)
+const STEP={1:5, 2:3, 3:5, 4:3};
 $('jogs').innerHTML=JOINTS.map(([n,i])=>`
   <div class="jog">
-    <button class="ghost" onclick="jog(${i},-5)">&minus;5&deg;</button>
+    <button class="ghost jogbtn" data-j="${i}" data-d="-${STEP[i]}">&minus;</button>
     <span>${n}</span>
-    <button class="ghost" onclick="jog(${i},5)">+5&deg;</button>
+    <button class="ghost jogbtn" data-j="${i}" data-d="${STEP[i]}">+</button>
   </div>`).join('');
+
+let jogTimer=null;
+function jogStart(j,d){
+  jogStop();
+  jog(j,d);
+  jogTimer=setInterval(()=>jog(j,d), 100);
+}
+function jogStop(){ if(jogTimer){clearInterval(jogTimer);jogTimer=null;} }
+document.querySelectorAll('.jogbtn').forEach(b=>{
+  const j=+b.dataset.j, d=+b.dataset.d;
+  b.addEventListener('mousedown',  e=>{e.preventDefault();jogStart(j,d);});
+  b.addEventListener('touchstart', e=>{e.preventDefault();jogStart(j,d);});
+  b.addEventListener('mouseup',    jogStop);
+  b.addEventListener('mouseleave', jogStop);
+  b.addEventListener('touchend',   jogStop);
+  b.addEventListener('touchcancel',jogStop);
+});
 
 function connect(){
   ws=new WebSocket('ws://'+location.host+'/ws');

@@ -41,13 +41,13 @@
 // Continuous-rotation servos: 1500us = stop. Offset sets spin speed.
 // Larger offset = faster spin = more open-loop error. Keep modest.
 #define CONT_STOP_US        1500
-#define CONT_SPEED_US       200        // pulse = 1500 +/- this while moving
+#define CONT_SPEED_US       150        // pulse = 1500 +/- this while moving (bigger = faster spin)
 
 // Measured rotation rate of the continuous servos at CONT_SPEED_US, in
 // degrees of JOINT travel per second. CALIBRATE: command a 90-deg move,
 // time it, adjust. This is the whole accuracy of the open-loop joints.
-#define J1_DEG_PER_SEC      60.0f
-#define J3_DEG_PER_SEC      60.0f
+#define J1_DEG_PER_SEC      45.0f
+#define J3_DEG_PER_SEC      45.0f
 
 // ---------------------------------------------------------------------------
 //  Positional-servo angle calibration.
@@ -77,12 +77,12 @@
 //  Joint software limits (degrees, in MATH frame, measured from horizontal
 //  for the pitch joints; yaw is about the vertical axis).
 // ---------------------------------------------------------------------------
-#define J1_MIN  (-90.0f)
-#define J1_MAX  ( 90.0f)
-#define J2_MIN  (-10.0f)
-#define J2_MAX  (120.0f)
-#define J3_MIN  (-140.0f)
-#define J3_MAX  (  0.0f)
+#define J1_MIN  (-180.0f)
+#define J1_MAX  ( 180.0f)
+#define J2_MIN  (-30.0f)
+#define J2_MAX  (150.0f)
+#define J3_MIN  (-150.0f)
+#define J3_MAX  ( 30.0f)
 #define J4_MIN  (-90.0f)
 #define J4_MAX  ( 90.0f)
 

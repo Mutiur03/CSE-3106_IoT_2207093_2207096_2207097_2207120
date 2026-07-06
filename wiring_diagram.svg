@@ -1,0 +1,126 @@
+<svg viewBox="0 0 700 520" xmlns="http://www.w3.org/2000/svg" role="img" style="font-family: system-ui, sans-serif;">
+  <title>ESP32 + PCA9685 + Servo Wiring Diagram</title>
+  <desc>Wiring diagram showing ESP32 connected to PCA9685 via I2C, PCA9685 driving 4 servos, with external power supply for servos and common ground.</desc>
+
+  <!-- Background -->
+  <rect width="700" height="520" fill="#0f1115" rx="12"/>
+
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" fill="#e6e9ef" font-size="15" font-weight="600">Wiring Diagram — ESP32 + PCA9685 + Servos</text>
+
+  <!-- ESP32 Box -->
+  <rect x="40" y="60" width="180" height="200" rx="8" fill="#1a1e26" stroke="#4da3ff" stroke-width="2"/>
+  <text x="130" y="85" text-anchor="middle" fill="#4da3ff" font-size="13" font-weight="700">ESP32 Dev Module</text>
+  <!-- Pins -->
+  <text x="60" y="115" fill="#e6e9ef" font-size="11">GPIO 21 (SDA)</text>
+  <text x="60" y="140" fill="#e6e9ef" font-size="11">GPIO 22 (SCL)</text>
+  <text x="60" y="170" fill="#e6e9ef" font-size="11">3V3</text>
+  <text x="60" y="200" fill="#e6e9ef" font-size="11">GND</text>
+  <text x="60" y="240" fill="#8b93a3" font-size="10">USB → PC (flash + serial)</text>
+
+  <!-- Pin dots on ESP32 right edge -->
+  <circle cx="220" cy="111" r="4" fill="#39d353"/>
+  <circle cx="220" cy="136" r="4" fill="#e5c07b"/>
+  <circle cx="220" cy="166" r="4" fill="#ff5d5d"/>
+  <circle cx="220" cy="196" r="4" fill="#8b93a3"/>
+
+  <!-- PCA9685 Box -->
+  <rect x="320" y="60" width="200" height="220" rx="8" fill="#1a1e26" stroke="#e5c07b" stroke-width="2"/>
+  <text x="420" y="85" text-anchor="middle" fill="#e5c07b" font-size="13" font-weight="700">PCA9685</text>
+  <!-- Input pins (left side) -->
+  <text x="340" y="115" fill="#e6e9ef" font-size="11">SDA</text>
+  <text x="340" y="140" fill="#e6e9ef" font-size="11">SCL</text>
+  <text x="340" y="170" fill="#e6e9ef" font-size="11">VCC (logic)</text>
+  <text x="340" y="200" fill="#e6e9ef" font-size="11">GND</text>
+  <text x="340" y="235" fill="#ff5d5d" font-size="11" font-weight="600">V+ (servo pwr)</text>
+
+  <!-- Pin dots on PCA9685 left edge -->
+  <circle cx="320" cy="111" r="4" fill="#39d353"/>
+  <circle cx="320" cy="136" r="4" fill="#e5c07b"/>
+  <circle cx="320" cy="166" r="4" fill="#ff5d5d"/>
+  <circle cx="320" cy="196" r="4" fill="#8b93a3"/>
+  <circle cx="320" cy="231" r="4" fill="#ff5d5d"/>
+
+  <!-- Output channels (right side) -->
+  <text x="460" y="115" fill="#e6e9ef" font-size="11">CH0</text>
+  <text x="460" y="140" fill="#e6e9ef" font-size="11">CH1</text>
+  <text x="460" y="165" fill="#e6e9ef" font-size="11">CH2</text>
+  <text x="460" y="190" fill="#e6e9ef" font-size="11">CH3</text>
+
+  <!-- Channel dots on right edge -->
+  <circle cx="520" cy="111" r="4" fill="#c678dd"/>
+  <circle cx="520" cy="136" r="4" fill="#c678dd"/>
+  <circle cx="520" cy="161" r="4" fill="#c678dd"/>
+  <circle cx="520" cy="186" r="4" fill="#c678dd"/>
+
+  <!-- I2C wires: ESP32 → PCA9685 -->
+  <line x1="224" y1="111" x2="316" y2="111" stroke="#39d353" stroke-width="2"/>
+  <line x1="224" y1="136" x2="316" y2="136" stroke="#e5c07b" stroke-width="2"/>
+  <!-- 3V3 → VCC -->
+  <line x1="224" y1="166" x2="316" y2="166" stroke="#ff5d5d" stroke-width="2"/>
+  <!-- GND → GND -->
+  <line x1="224" y1="196" x2="316" y2="196" stroke="#8b93a3" stroke-width="2"/>
+
+  <!-- Wire labels -->
+  <text x="270" y="105" text-anchor="middle" fill="#39d353" font-size="9">SDA</text>
+  <text x="270" y="130" text-anchor="middle" fill="#e5c07b" font-size="9">SCL</text>
+  <text x="270" y="160" text-anchor="middle" fill="#ff5d5d" font-size="9">3V3</text>
+  <text x="270" y="190" text-anchor="middle" fill="#8b93a3" font-size="9">GND</text>
+
+  <!-- Servo boxes -->
+  <rect x="570" y="80" width="110" height="35" rx="6" fill="#1a1e26" stroke="#c678dd" stroke-width="1.5"/>
+  <text x="625" y="102" text-anchor="middle" fill="#c678dd" font-size="10" font-weight="600">J1 Base MG996</text>
+  <text x="625" y="109" text-anchor="middle" fill="#8b93a3" font-size="8">360 continuous</text>
+
+  <rect x="570" y="125" width="110" height="35" rx="6" fill="#1a1e26" stroke="#c678dd" stroke-width="1.5"/>
+  <text x="625" y="142" text-anchor="middle" fill="#c678dd" font-size="10" font-weight="600">J2 Shoulder MG996</text>
+  <text x="625" y="153" text-anchor="middle" fill="#8b93a3" font-size="8">180 positional</text>
+
+  <rect x="570" y="170" width="110" height="35" rx="6" fill="#1a1e26" stroke="#c678dd" stroke-width="1.5"/>
+  <text x="625" y="187" text-anchor="middle" fill="#c678dd" font-size="10" font-weight="600">J3 Elbow MG996</text>
+  <text x="625" y="198" text-anchor="middle" fill="#8b93a3" font-size="8">360 continuous</text>
+
+  <rect x="570" y="215" width="110" height="35" rx="6" fill="#1a1e26" stroke="#c678dd" stroke-width="1.5"/>
+  <text x="625" y="232" text-anchor="middle" fill="#c678dd" font-size="10" font-weight="600">J4 Wrist SG90</text>
+  <text x="625" y="243" text-anchor="middle" fill="#8b93a3" font-size="8">180 positional</text>
+
+  <!-- Servo wires CH → servos -->
+  <line x1="524" y1="111" x2="570" y2="97" stroke="#c678dd" stroke-width="1.5"/>
+  <line x1="524" y1="136" x2="570" y2="142" stroke="#c678dd" stroke-width="1.5"/>
+  <line x1="524" y1="161" x2="570" y2="187" stroke="#c678dd" stroke-width="1.5"/>
+  <line x1="524" y1="186" x2="570" y2="232" stroke="#c678dd" stroke-width="1.5"/>
+
+  <!-- Power Supply Box -->
+  <rect x="200" y="340" width="300" height="150" rx="8" fill="#1a1e26" stroke="#ff5d5d" stroke-width="2"/>
+  <text x="350" y="365" text-anchor="middle" fill="#ff5d5d" font-size="13" font-weight="700">External Power Supply</text>
+  <text x="350" y="390" text-anchor="middle" fill="#e6e9ef" font-size="12">5-6V  5A+  DC Adapter</text>
+
+  <!-- Power connections -->
+  <text x="220" y="420" fill="#e6e9ef" font-size="11">+ (positive) → PCA9685 V+</text>
+  <text x="220" y="445" fill="#e6e9ef" font-size="11">- (negative) → PCA9685 GND</text>
+  <text x="220" y="470" fill="#ff5d5d" font-size="11" font-weight="600">!! Also tie - to ESP32 GND</text>
+
+  <!-- V+ wire from power to PCA9685 -->
+  <path d="M 420 340 L 420 231" stroke="#ff5d5d" stroke-width="2.5" fill="none" stroke-dasharray="6,3"/>
+
+  <!-- GND wire from power to PCA9685 GND area -->
+  <path d="M 380 340 L 380 280 L 420 280 L 420 200" stroke="#8b93a3" stroke-width="2" fill="none" stroke-dasharray="6,3"/>
+
+  <!-- Common GND line to ESP32 -->
+  <path d="M 280 340 L 280 300 L 130 300 L 130 200" stroke="#8b93a3" stroke-width="2" fill="none" stroke-dasharray="6,3"/>
+  <text x="170" y="310" fill="#8b93a3" font-size="9">COMMON GND</text>
+
+  <!-- Capacitor -->
+  <rect x="440" y="290" width="80" height="30" rx="4" fill="#1a1e26" stroke="#e5c07b" stroke-width="1"/>
+  <text x="480" y="310" text-anchor="middle" fill="#e5c07b" font-size="10">1000uF cap</text>
+  <text x="480" y="325" text-anchor="middle" fill="#8b93a3" font-size="8">across V+ / GND</text>
+
+  <!-- Legend -->
+  <rect x="40" y="340" width="140" height="150" rx="8" fill="#1a1e26" stroke="#262b36" stroke-width="1"/>
+  <text x="110" y="362" text-anchor="middle" fill="#8b93a3" font-size="10" font-weight="600">WIRE COLORS</text>
+  <circle cx="56" cy="382" r="4" fill="#39d353"/><text x="68" y="386" fill="#39d353" font-size="10">SDA (data)</text>
+  <circle cx="56" cy="402" r="4" fill="#e5c07b"/><text x="68" y="406" fill="#e5c07b" font-size="10">SCL (clock)</text>
+  <circle cx="56" cy="422" r="4" fill="#ff5d5d"/><text x="68" y="426" fill="#ff5d5d" font-size="10">Power (3V3 / V+)</text>
+  <circle cx="56" cy="442" r="4" fill="#8b93a3"/><text x="68" y="446" fill="#8b93a3" font-size="10">Ground</text>
+  <circle cx="56" cy="462" r="4" fill="#c678dd"/><text x="68" y="466" fill="#c678dd" font-size="10">Servo signal</text>
+</svg>
