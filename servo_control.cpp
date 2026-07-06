@@ -7,8 +7,9 @@
 
 static Adafruit_PWMServoDriver pwm(PCA9685_ADDR);
 
-static Joints cur = { 0, 45, 0, 0 };     // startup pose estimate (deg, math frame)
-static Joints tgt = cur;
+static const Joints HOME = { 0, 45, 0, 0 };  // default rest pose (deg, math frame)
+static Joints cur = HOME;                    // startup pose estimate
+static Joints tgt = HOME;
 static uint32_t lastMs = 0;
 
 // ---- helpers --------------------------------------------------------------
@@ -66,6 +67,7 @@ void servoJog(int joint, float d) {
 }
 
 void servoSetHome(const Joints& ref) { cur = ref; tgt = ref; }
+void servoGoHome() { servoSetTarget(HOME); }   // ramp current -> HOME via update loop
 
 Joints servoCurrent() { return cur; }
 

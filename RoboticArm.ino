@@ -1,7 +1,7 @@
 // ============================================================================
 //  RoboticArm.ino  -  ESP32 4-DOF arm controller.
-//  ESP32 hosts a web page + WebSocket; solves IK on-board; drives servos
-//  through a PCA9685. See config.h for all calibration.
+//  ESP32 hosts a web page + WebSocket, drives 4 servos through a PCA9685.
+//  Control = per-joint jog only. No IK / FK.
 //
 //  Libraries (install via Arduino Library Manager):
 //    - ESPAsyncWebServer   (me-no-dev)     + AsyncTCP (me-no-dev)
@@ -14,7 +14,6 @@
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
 #include "config.h"
-#include "kinematics.h"
 #include "servo_control.h"
 #include "webpage.h"
 
@@ -23,15 +22,11 @@ AsyncWebSocket  ws("/ws");
 
 static uint32_t lastBroadcast = 0;
 
-// Build a JSON state string and (optionally) an operation message.
 static String stateJson(const char* msg = nullptr, bool ok = true) {
-  StaticJsonDocument<256> d;
+  StaticJsonDocument<192> d;
   Joints c = servoCurrent();
-  Pose   p = fkSolve(c);
   JsonArray ja = d.createNestedArray("j");
   ja.add(c.j1); ja.add(c.j2); ja.add(c.j3); ja.add(c.j4);
-  JsonArray pa = d.createNestedArray("p");
-  pa.add(p.x); pa.add(p.y); pa.add(p.z); pa.add(p.pitch);
   if (msg) { d["msg"] = msg; d["ok"] = ok; }
   String s; serializeJson(d, s); return s;
 }
@@ -40,37 +35,27 @@ static void broadcast(const char* msg = nullptr, bool ok = true) {
   ws.textAll(stateJson(msg, ok));
 }
 
-// ---- WebSocket command handling ------------------------------------------
 static void handleCommand(AsyncWebSocketClient* client, const String& body) {
-  StaticJsonDocument<192> d;
-  if (deserializeJson(d, body)) return;         // ignore malformed
+  StaticJsonDocument<128> d;
+  if (deserializeJson(d, body)) return;
   const char* cmd = d["cmd"] | "";
 
-  if (!strcmp(cmd, "ik")) {
-    Pose target { d["x"] | 0.0f, d["y"] | 0.0f, d["z"] | 0.0f, d["pitch"] | 0.0f };
-    Joints sol;
-    if (ikSolve(target, sol)) { servoSetTarget(sol); broadcast("moving to target"); }
-    else                       broadcast("target unreachable", false);
-
-  } else if (!strcmp(cmd, "jog")) {
+  if (!strcmp(cmd, "jog")) {
     servoJog(d["joint"] | 0, d["delta"] | 0.0f);
     broadcast("jog");
-
   } else if (!strcmp(cmd, "stop")) {
-    servoSetHome(servoCurrent());               // freeze at current estimate
+    servoSetHome(servoCurrent());
     broadcast("stopped");
-
   } else if (!strcmp(cmd, "sethome")) {
-    Joints home { 0, 45, 0, 0 };                // matches startup estimate
-    servoSetHome(home);
-    broadcast("home set");
+    servoGoHome();
+    broadcast("moving to home");
   }
 }
 
 static void onWsEvent(AsyncWebSocket* s, AsyncWebSocketClient* c, AwsEventType type,
                       void* arg, uint8_t* data, size_t len) {
   if (type == WS_EVT_CONNECT) {
-    c->text(stateJson());                       // push current state on connect
+    c->text(stateJson());
   } else if (type == WS_EVT_DATA) {
     AwsFrameInfo* info = (AwsFrameInfo*)arg;
     if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
@@ -122,10 +107,9 @@ void setup() {
 }
 
 void loop() {
-  servoUpdate();                                // non-blocking motion stepper
+  servoUpdate();
   ws.cleanupClients();
-
-  if (millis() - lastBroadcast > 150) {         // ~7 Hz telemetry to UI
+  if (millis() - lastBroadcast > 150) {
     lastBroadcast = millis();
     if (ws.count()) broadcast();
   }
