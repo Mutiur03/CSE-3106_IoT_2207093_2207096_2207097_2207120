@@ -187,7 +187,7 @@ $('spd').addEventListener('input', ()=>{ $('spdv').textContent=$('spd').value; }
 // --- joint jog (same press-and-hold) ---
 function jog(j,d){ send({cmd:'jog',joint:j,delta:d}); }
 const JOINTS=[['J1 base',1],['J2 shoulder',2],['J3 elbow',3],['J4 wrist',4]];
-const STEP={1:5, 2:3, 3:5, 4:3};
+const STEP={1:5, 2:3, 3:3, 4:3};
 $('jogs').innerHTML=JOINTS.map(([n,i])=>`
   <div class="jog">
     <button class="ghost jogbtn" data-j="${i}" data-d="-${STEP[i]}">&minus;</button>

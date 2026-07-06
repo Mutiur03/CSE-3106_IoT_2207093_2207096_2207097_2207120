@@ -60,9 +60,12 @@
 #define J4_DIR              (+1)
 #define J4_OFFSET_DEG       90.0f
 
-// Same idea for the continuous joints (used only to display/track angle)
-#define J1_DIR              (+1)
+// J3 elbow positional calibration (now 180 deg servo)
 #define J3_DIR              (+1)
+#define J3_OFFSET_DEG       90.0f      // math 0deg -> servo 90
+
+// J1 continuous direction
+#define J1_DIR              (+1)
 
 // ---------------------------------------------------------------------------
 //  Link lengths (mm) - pivot to pivot. ESTIMATED from the STL bounding boxes;
@@ -81,8 +84,8 @@
 #define J1_MAX  ( 180.0f)
 #define J2_MIN  (-30.0f)
 #define J2_MAX  (150.0f)
-#define J3_MIN  (-150.0f)
-#define J3_MAX  ( 30.0f)
+#define J3_MIN  (-90.0f)
+#define J3_MAX  ( 90.0f)
 #define J4_MIN  (-90.0f)
 #define J4_MAX  ( 90.0f)
 

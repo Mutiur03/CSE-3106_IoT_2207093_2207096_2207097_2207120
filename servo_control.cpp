@@ -7,7 +7,7 @@
 
 static Adafruit_PWMServoDriver pwm(PCA9685_ADDR);
 
-static Joints cur = { 0, 45, -90, 0 };   // startup pose estimate (deg, math frame)
+static Joints cur = { 0, 45, 0, 0 };     // startup pose estimate (deg, math frame)
 static Joints tgt = cur;
 static uint32_t lastMs = 0;
 
@@ -43,11 +43,11 @@ void servoBegin() {
   pwm.begin();
   pwm.setPWMFreq(SERVO_FREQ_HZ);
   delay(10);
-  // park positional joints at current estimate; stop continuous joints
+  // park positional joints; stop continuous joints
   writePositional(CH_J2_SHOULDER, cur.j2, J2_DIR, J2_OFFSET_DEG);
+  writePositional(CH_J3_ELBOW,    cur.j3, J3_DIR, J3_OFFSET_DEG);
   writePositional(CH_J4_WRIST,    cur.j4, J4_DIR, J4_OFFSET_DEG);
-  writeContinuous(CH_J1_BASE,  0);
-  writeContinuous(CH_J3_ELBOW, 0);
+  writeContinuous(CH_J1_BASE, 0);
   lastMs = millis();
 }
 
@@ -84,29 +84,19 @@ void servoUpdate() {
   // --- positional joints: smooth step, write angle ---
   stepTo(cur.j2, tgt.j2, MOVE_STEP_DEG);
   writePositional(CH_J2_SHOULDER, cur.j2, J2_DIR, J2_OFFSET_DEG);
+  stepTo(cur.j3, tgt.j3, MOVE_STEP_DEG);
+  writePositional(CH_J3_ELBOW, cur.j3, J3_DIR, J3_OFFSET_DEG);
   stepTo(cur.j4, tgt.j4, MOVE_STEP_DEG);
   writePositional(CH_J4_WRIST, cur.j4, J4_DIR, J4_OFFSET_DEG);
 
-  // --- continuous joints: open-loop timed spin, integrate angle ---
+  // --- continuous joint: J1 base only ---
   const float tol = 1.0f;
-  // J1
   float e1 = tgt.j1 - cur.j1;
   if (fabsf(e1) > tol) {
     int dir = (e1 > 0 ? 1 : -1) * J1_DIR;
-    float us = CONT_STOP_US + dir * (float)CONT_SPEED_US;
-    Serial.printf("J1: err=%.1f dir=%d pulse=%.0f\n", e1, dir, us);
+    Serial.printf("J1: err=%.1f dir=%d\n", e1, dir);
     writeContinuous(CH_J1_BASE, dir);
     cur.j1 += (e1 > 0 ? 1 : -1) * J1_DEG_PER_SEC * dt;
     if ((e1 > 0) != (tgt.j1 - cur.j1 > 0)) cur.j1 = tgt.j1;
   } else { writeContinuous(CH_J1_BASE, 0); cur.j1 = tgt.j1; }
-  // J3
-  float e3 = tgt.j3 - cur.j3;
-  if (fabsf(e3) > tol) {
-    int dir = (e3 > 0 ? 1 : -1) * J3_DIR;
-    float us3 = CONT_STOP_US + dir * (float)CONT_SPEED_US;
-    Serial.printf("J3: err=%.1f dir=%d pulse=%.0f\n", e3, dir, us3);
-    writeContinuous(CH_J3_ELBOW, dir);
-    cur.j3 += (e3 > 0 ? 1 : -1) * J3_DEG_PER_SEC * dt;
-    if ((e3 > 0) != (tgt.j3 - cur.j3 > 0)) cur.j3 = tgt.j3;
-  } else { writeContinuous(CH_J3_ELBOW, 0); cur.j3 = tgt.j3; }
 }

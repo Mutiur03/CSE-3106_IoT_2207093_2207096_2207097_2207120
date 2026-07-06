@@ -61,7 +61,7 @@ static void handleCommand(AsyncWebSocketClient* client, const String& body) {
     broadcast("stopped");
 
   } else if (!strcmp(cmd, "sethome")) {
-    Joints home { 0, 45, -90, 0 };              // matches startup estimate
+    Joints home { 0, 45, 0, 0 };                // matches startup estimate
     servoSetHome(home);
     broadcast("home set");
   }
