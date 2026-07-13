@@ -1,14 +1,3 @@
-// ============================================================================
-//  RoboticArm.ino  -  ESP32 4-DOF arm controller.
-//  ESP32 hosts a web page + WebSocket, drives 4 servos through a PCA9685.
-//  Control = per-joint jog only. No IK / FK.
-//
-//  Libraries (install via Arduino Library Manager):
-//    - ESPAsyncWebServer   (me-no-dev)     + AsyncTCP (me-no-dev)
-//    - ArduinoJson         (Benoit Blanchon)
-//    - Adafruit PWM Servo Driver Library   (Adafruit)
-//  Board: any ESP32 dev module.
-// ============================================================================
 #include <Wire.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
@@ -23,10 +12,10 @@ AsyncWebSocket  ws("/ws");
 static uint32_t lastBroadcast = 0;
 
 static String stateJson(const char* msg = nullptr, bool ok = true) {
-  StaticJsonDocument<192> d;
+  StaticJsonDocument<256> d;
   Joints c = servoCurrent();
   JsonArray ja = d.createNestedArray("j");
-  ja.add(c.j1); ja.add(c.j2); ja.add(c.j3); ja.add(c.j4);
+  ja.add(c.j1); ja.add(c.j2); ja.add(c.j3); ja.add(c.j4); ja.add(c.j5); ja.add(c.j6);
   if (msg) { d["msg"] = msg; d["ok"] = ok; }
   String s; serializeJson(d, s); return s;
 }

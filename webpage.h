@@ -1,7 +1,3 @@
-// ============================================================================
-//  webpage.h  -  Single-page UI served from ESP32 flash (PROGMEM).
-//  Joint-jog only. Talks to firmware over WebSocket with JSON messages.
-// ============================================================================
 #pragma once
 
 const char INDEX_HTML[] PROGMEM = R"HTML(
@@ -49,6 +45,8 @@ const char INDEX_HTML[] PROGMEM = R"HTML(
       <div>J2 shoulder <b id="rj2">-</b>&deg;</div>
       <div>J3 elbow <b id="rj3">-</b>&deg;</div>
       <div>J4 wrist <b id="rj4">-</b>&deg;</div>
+      <div>J5 grip <b id="rj5">-</b>&deg;</div>
+      <div>J6 aux <b id="rj6">-</b>&deg;</div>
     </div>
     <div class="row" style="margin-top:12px">
       <button class="ghost" onclick="send({cmd:'sethome'})">Set home</button>
@@ -70,12 +68,13 @@ function connect(){
 function send(o){ if(ws&&ws.readyState==1) ws.send(JSON.stringify(o)); }
 function update(s){
   if(s.j){ $('rj1').textContent=s.j[0].toFixed(1); $('rj2').textContent=s.j[1].toFixed(1);
-           $('rj3').textContent=s.j[2].toFixed(1); $('rj4').textContent=s.j[3].toFixed(1); }
+           $('rj3').textContent=s.j[2].toFixed(1); $('rj4').textContent=s.j[3].toFixed(1);
+           $('rj5').textContent=s.j[4].toFixed(1); $('rj6').textContent=s.j[5].toFixed(1); }
   if(s.msg!==undefined){ const m=$('msg'); m.textContent=s.msg; m.className=s.ok===false?'err':(s.msg?'ok':''); }
 }
 function jog(j,d){ send({cmd:'jog',joint:j,delta:d}); }
-const JOINTS=[['J1 base',1],['J2 shoulder',2],['J3 elbow',3],['J4 wrist',4]];
-const STEP={1:5, 2:3, 3:3, 4:3};
+const JOINTS=[['J1 base',1],['J2 shoulder',2],['J3 elbow',3],['J4 wrist',4],['J5 grip',5],['J6 aux',6]];
+const STEP={1:5, 2:3, 3:3, 4:3, 5:3, 6:3};
 $('jogs').innerHTML=JOINTS.map(([n,i])=>`
   <div class="jog">
     <button class="ghost jogbtn" data-j="${i}" data-d="-${STEP[i]}">&minus;</button>
