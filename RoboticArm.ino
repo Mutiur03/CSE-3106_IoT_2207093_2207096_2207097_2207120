@@ -41,6 +41,55 @@ static void handleCommand(AsyncWebSocketClient* client, const String& body) {
   }
 }
 
+static bool applyTargetFromJson(JsonDocument& d, String& err) {
+  Joints t = servoCurrent();
+
+  if (d["j"].is<JsonArray>()) {
+    JsonArray a = d["j"].as<JsonArray>();
+    if (a.size() != 6) { err = "j array must have 6 elements"; return false; }
+    t.j1 = a[0]; t.j2 = a[1]; t.j3 = a[2]; t.j4 = a[3]; t.j5 = a[4]; t.j6 = a[5];
+  } else {
+    t.j1 = d["j1"] | t.j1;  t.j2 = d["j2"] | t.j2;  t.j3 = d["j3"] | t.j3;
+    t.j4 = d["j4"] | t.j4;  t.j5 = d["j5"] | t.j5;  t.j6 = d["j6"] | t.j6;
+  }
+
+  t.j1 = constrain(t.j1, J1_MIN, J1_MAX);
+  t.j2 = constrain(t.j2, J2_MIN, J2_MAX);
+  t.j3 = constrain(t.j3, J3_MIN, J3_MAX);
+  t.j4 = constrain(t.j4, J4_MIN, J4_MAX);
+  t.j5 = constrain(t.j5, J5_MIN, J5_MAX);
+  t.j6 = constrain(t.j6, J6_MIN, J6_MAX);
+
+  servoSetTarget(t);
+  return true;
+}
+
+static void onApiMoveBody(AsyncWebServerRequest* req, uint8_t* data, size_t len,
+                          size_t index, size_t total) {
+  if (index == 0) {
+    req->_tempObject = new String();
+    ((String*)req->_tempObject)->reserve(total);
+  }
+  String* buf = (String*)req->_tempObject;
+  for (size_t i = 0; i < len; i++) *buf += (char)data[i];
+
+  if (index + len != total) return;
+
+  StaticJsonDocument<256> d;
+  DeserializationError jerr = deserializeJson(d, *buf);
+  delete buf; req->_tempObject = nullptr;
+
+  if (jerr) { req->send(400, "application/json", "{\"ok\":false,\"msg\":\"bad json\"}"); return; }
+
+  String err;
+  if (!applyTargetFromJson(d, err)) {
+    req->send(400, "application/json", String("{\"ok\":false,\"msg\":\"") + err + "\"}");
+    return;
+  }
+  broadcast("api move");
+  req->send(200, "application/json", stateJson("moving", true));
+}
+
 static void onWsEvent(AsyncWebSocket* s, AsyncWebSocketClient* c, AwsEventType type,
                       void* arg, uint8_t* data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -92,6 +141,19 @@ void setup() {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* r) {
     r->send_P(200, "text/html", INDEX_HTML);
   });
+
+  server.on("/api/state", HTTP_GET, [](AsyncWebServerRequest* r) {
+    r->send(200, "application/json", stateJson());
+  });
+  server.on("/api/move", HTTP_POST,
+            [](AsyncWebServerRequest* r) {},
+            nullptr, onApiMoveBody);
+  server.on("/api/home", HTTP_POST, [](AsyncWebServerRequest* r) {
+    servoGoHome();
+    broadcast("moving to home");
+    r->send(200, "application/json", stateJson("moving to home", true));
+  });
+
   server.begin();
 }
 
