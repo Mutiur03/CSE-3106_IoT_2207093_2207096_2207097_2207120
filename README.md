@@ -19,6 +19,7 @@ state over WebSocket, and drives servos through a PCA9685 PWM driver.
 | | |
 |---|---|
 | ![arm front](images/1.jpg) | ![arm wired](images/2.jpg) |
+| ![arm front](images/3.jpeg) |
 
 ## Features
 - **Wireless control** - ESP32 opens its own WiFi access point (or joins
