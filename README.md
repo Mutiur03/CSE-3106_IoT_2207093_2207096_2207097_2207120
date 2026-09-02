@@ -1,24 +1,37 @@
-# ESP32 Robotic Arm — Web-Controlled, WiFi-Native
+# ESP32 Robotic Arm - Web-Controlled, WiFi-Native
 
-**Course:** CSE 3106 — Embedded Systems & Internet of Things
+**Course:** CSE 3106 - Embedded Systems & Internet of Things Laboratory
+
+
 **Group members (roll numbers):** 2207093, 2207096, 2207097, 2207120
 
-A 6-joint robotic arm controlled entirely over WiFi from a browser — no app,
+A 6-joint robotic arm controlled entirely over WiFi from a browser - no app,
 no companion software. The ESP32 hosts its own web page, streams live joint
 state over WebSocket, and drives servos through a PCA9685 PWM driver.
 
+## Media
+
+### Videos
+- **Project demo:** [Watch on Google Drive](https://drive.google.com/file/d/1-gD6HYB_wUxXoMm8oFtJcCvovaT6Efb8/view?usp=sharing)
+- **Control the Arm using API - Used *Postman* for testing (merged with other group):** [Watch on Google Drive](https://drive.google.com/file/d/11pC7q9-a4dALDtFa4gt1tf8cy5Px3Xyf/view?usp=drive_link)
+
+### Images
+| | |
+|---|---|
+| ![arm front](images/1.jpg) | ![arm wired](images/2.jpg) |
+
 ## Features
-- **Wireless control** — ESP32 opens its own WiFi access point (or joins
+- **Wireless control** - ESP32 opens its own WiFi access point (or joins
   home WiFi); control the arm from any phone/laptop browser on that network.
-- **Live web UI** — served directly from the ESP32's flash, no internet or
+- **Live web UI** - served directly from the ESP32's flash, no internet or
   external hosting needed. Jog buttons per joint, live angle readout.
-- **Real-time state sync** — WebSocket pushes joint angles to every
+- **Real-time state sync** - WebSocket pushes joint angles to every
   connected client as the arm moves.
-- **REST API** — `POST /api/move` and `POST /api/home` for programmatic
+- **REST API** - `POST /api/move` and `POST /api/home` for programmatic
   control (scripting, external dashboards, automation).
-- **6 independent joints** — mixed servo types (see Hardware) handled
+- **6 independent joints** - mixed servo types (see Hardware) handled
   through one uniform `Joints` interface.
-- **Home / stop safety commands** — recover a known pose or halt motion
+- **Home / stop safety commands** - recover a known pose or halt motion
   from the UI at any time.
 
 ## System architecture
@@ -57,7 +70,7 @@ See [wiring_diagram.svg](wiring_diagram.svg) for the full wiring layout.
 
 - **MCU:** ESP32 Dev Module
 - **PWM driver:** PCA9685 (I2C, address `0x40`)
-- **Servo power:** separate 5–6V, ≥5A supply — **not** from the ESP32 5V pin
+- **Servo power:** separate 5–6V, ≥5A supply - **not** from the ESP32 5V pin
   (four+ servos can spike past 5A combined). Common ground required between
   supply, PCA9685, and ESP32.
 
@@ -84,12 +97,12 @@ Servo channel map (PCA9685 outputs):
   0 = J1 base   1 = J2 shoulder   2 = J3 elbow   3 = J4 wrist   4 = J5 grip   5 = J6 aux
 ```
 
-### ⚠ Power — read this
+### ⚠ Power - read this
 - MG996 stalls at **~1–2.5 A each**. Multiple servos moving together can
-  spike **>5 A**. **Never** run servo V+ from the ESP32 5V pin — it will
+  spike **>5 A**. **Never** run servo V+ from the ESP32 5V pin - it will
   brown-out and reset, or die.
 - Use a separate **5–6V ≥5A** supply into PCA9685 **V+**.
-- **Common ground** between that supply, the PCA9685, and the ESP32 — or
+- **Common ground** between that supply, the PCA9685, and the ESP32 - or
   servos jitter / signals float.
 - Add a large capacitor (**1000µF**) across V+/GND at the PCA9685 to absorb
   spikes.
@@ -97,19 +110,19 @@ Servo channel map (PCA9685 outputs):
 ## Repository layout
 | Path | Purpose |
 |------|---------|
-| `RoboticArm.ino` | Main firmware — WiFi, web server, WebSocket, command routing |
-| `config.h` | All calibration — pins, servo trim, direction, angle limits |
+| `RoboticArm.ino` | Main firmware - WiFi, web server, WebSocket, command routing |
+| `config.h` | All calibration - pins, servo trim, direction, angle limits |
 | `servo_control.cpp/.h` | PCA9685 drive, positional + open-loop timed motion |
 | `webpage.h` | Control web page (HTML/CSS/JS embedded in flash) |
 | `wiring_diagram.svg` | Full wiring diagram |
-| `calibration_all/` | Standalone sketch — sweeps/tests all 4 original servos via PCA9685 |
-| `calibration_j2/` | Standalone sketch — isolates one positional servo channel for calibration |
+| `calibration_all/` | Standalone sketch - sweeps/tests all 4 original servos via PCA9685 |
+| `calibration_j2/` | Standalone sketch - isolates one positional servo channel for calibration |
 
 ## Setup
 
 ### 1. Wire it up
 Follow the [Wiring](#wiring) section and [wiring_diagram.svg](wiring_diagram.svg).
-Power servos from a dedicated external supply — do not skip the common
+Power servos from a dedicated external supply - do not skip the common
 ground.
 
 ### 2. Install libraries (Arduino IDE → Library Manager)
@@ -124,14 +137,14 @@ Board: install **"esp32 by Espressif"** in Boards Manager, then select
 Set WiFi mode (`USE_WIFI_AP`), AP credentials or home WiFi SSID/password,
 and per-joint direction/offset/limits to match your build.
 
-> `config.h` in this repo ships with placeholder network values — replace
+> `config.h` in this repo ships with placeholder network values - replace
 > `STA_SSID`/`STA_PASS` with your own if using station mode, and don't
 > commit real credentials to a public repo.
 
 ### 4. Flash & connect
 1. Open `RoboticArm.ino` in Arduino IDE (keep all files in the same folder).
 2. Select your ESP32 board + port, Upload.
-3. Open Serial Monitor @115200 — it prints the connection URL.
+3. Open Serial Monitor @115200 - it prints the connection URL.
    - Default = **Access Point** `RoboArm` / pass `12345678`. Connect your
      phone/laptop to that WiFi, open **http://192.168.4.1/**.
    - To join home WiFi instead, set `USE_WIFI_AP 0` and your SSID/PASS in
@@ -146,6 +159,6 @@ firmware:
    `_OFFSET_DEG` so math-0° matches the physical reference pose.
 2. **Continuous servos (J1, J3) speed.** Jog +90°, time how long the joint
    actually takes, then set `J1_DEG_PER_SEC`/`J3_DEG_PER_SEC = 90 / seconds`.
-   These are **open-loop** — angle is estimated from elapsed time and
+   These are **open-loop** - angle is estimated from elapsed time and
    **drifts** over use. Physically home the joint and use **Set home** in
    the UI when it strays.
